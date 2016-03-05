@@ -3,7 +3,8 @@ Interaction proof of concept for presenting and interacting with images (like co
 
 <br>
 
-I created this project as an exercise. I wanted to implement an interaction like this: [http://www.ios.uplabs.com/posts/chapps-animation] (http://www.ios.uplabs.com/posts/chapps-animation), which is also the source of my images (of which I do not own any rights).
+I created this project as an exercise. I wanted to implement an interaction like this:
+ [http://www.ios.uplabs.com/posts/chapps-animation] (http://www.ios.uplabs.com/posts/chapps-animation), which is also the source of my images (of which I do not own any rights).
 
 Having done the credits, I would like to introduce you to the result: 
 ![Animated Gif of the final interaction](Preview.gif)
