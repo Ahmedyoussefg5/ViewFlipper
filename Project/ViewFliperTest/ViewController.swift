@@ -11,28 +11,28 @@ import UIKit
 class ViewController: UIViewController {
     
     enum DirectionOfPan {
-        case Upwards, Downwards
+        case upwards, downwards
     }
     enum StateOfView {
-        case Finished, Initial
+        case finished, initial
     }
     
     /// Holds the point on which the last progress was calculated. Used to determin a delta-progress for every sample of gesture.
-    private var pointOfLastCalculatedProgress : CGPoint = .zero
+    fileprivate var pointOfLastCalculatedProgress : CGPoint = .zero
     
     /// Gesture recognizer that tracks panning.
-    lazy private var gestureRecognizer : UIPanGestureRecognizer = {
-        return UIPanGestureRecognizer(target: self, action: "gestureRecognizerDidFire:")
+    lazy fileprivate var gestureRecognizer : UIPanGestureRecognizer = {
+        return UIPanGestureRecognizer(target: self, action: #selector(ViewController.gestureRecognizerDidFire(_:)))
     }()
     
     /// This value holds the global progress of the gesture. For every sample of the gesture, a small delta-progress is calculated and than added to this varaible. While the first view is interactive, cumulativeProgress is between 0 and 1. If the user interacts with the second view, it goes from 1 to 2.
-    private var cumulativeProgress: Float = 0
+    fileprivate var cumulativeProgress: Float = 0
 
     /// Array of views that the user can interact with.
-    private var interactiveViews = [UIView]()
+    fileprivate var interactiveViews = [UIView]()
     
     /// Array of images that the interactiveViews should display. It determines the number of views that will be created and displayed.
-    private let images = [UIImage(named: "0"), UIImage(named: "1"), UIImage(named: "2"), UIImage(named: "3"), UIImage(named: "4"), UIImage(named: "5"), UIImage(named: "6"), UIImage(named: "7"), UIImage(named: "8"), UIImage(named: "9")]
+    fileprivate let images = [UIImage(named: "0"), UIImage(named: "1"), UIImage(named: "2"), UIImage(named: "3"), UIImage(named: "4"), UIImage(named: "5"), UIImage(named: "6"), UIImage(named: "7"), UIImage(named: "8"), UIImage(named: "9")]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,8 +50,8 @@ class ViewController: UIViewController {
     /**
      Fills the array interactiveViews with Views that display images form images.
      */
-    private func prepareinteractiveViews() {
-        for (index, image) in images.enumerate() {
+    fileprivate func prepareinteractiveViews() {
+        for (index, image) in images.enumerated() {
             
             
             let newView = UIImageView(frame: frameForViewAtIndex(index))
@@ -80,24 +80,24 @@ class ViewController: UIViewController {
      
      - returns: CGRect of the view at index.
      */
-    private func frameForViewAtIndex(index: Int) -> CGRect {
+    fileprivate func frameForViewAtIndex(_ index: Int) -> CGRect {
         let floatIndex = CGFloat(index)
         
         
         let sizeOfNewView = CGSize(width: 300 - floatIndex * 10, height: 200 - floatIndex * 5)
         
-        let originOfNewView = CGPointMake(view.center.x - sizeOfNewView.width / 2.0, view.center.y - sizeOfNewView.height / 2.0 - floatIndex * 10)
+        let originOfNewView = CGPoint(x: view.center.x - sizeOfNewView.width / 2.0, y: view.center.y - sizeOfNewView.height / 2.0 - floatIndex * 10)
         
         return CGRect(origin: originOfNewView, size: sizeOfNewView)
         
     }
 
-    @IBAction func startButtonPressed(sender: AnyObject) {
+    @IBAction func startButtonPressed(_ sender: AnyObject) {
         
         let viewToAnimate = viewForIndex(indexOfInteractiveViewBasedOnCumulativeProgress(cumulativeProgress))
-        animateView(viewToAnimate, toState: .Finished, basedOnInitialVelocity: 0)
+        animateView(viewToAnimate, toState: .finished, basedOnInitialVelocity: 0)
         
-        cumulativeProgress++
+        cumulativeProgress += 1
     }
     
     /**
@@ -106,15 +106,15 @@ class ViewController: UIViewController {
      
      - parameter gestureRecognizer: A UIPanGestureRecognizer.
      */
-    func gestureRecognizerDidFire(gestureRecognizer: UIPanGestureRecognizer) {
-        let locationOfTouch = gestureRecognizer.locationInView(gestureRecognizer.view!)
-        let direction : DirectionOfPan = gestureRecognizer.velocityInView(gestureRecognizer.view!).y < 0 ? .Upwards : .Downwards
+    func gestureRecognizerDidFire(_ gestureRecognizer: UIPanGestureRecognizer) {
+        let locationOfTouch = gestureRecognizer.location(in: gestureRecognizer.view!)
+        let direction : DirectionOfPan = gestureRecognizer.velocity(in: gestureRecognizer.view!).y < 0 ? .upwards : .downwards
         
         switch gestureRecognizer.state {
-        case .Began:
+        case .began:
             pointOfLastCalculatedProgress = locationOfTouch
-        case .Ended:
-            let velocityOfTouch = gestureRecognizer.velocityInView(gestureRecognizer.view!).y
+        case .ended:
+            let velocityOfTouch = gestureRecognizer.velocity(in: gestureRecognizer.view!).y
             let velocityOfSpring = initialVelocityOfSpringAnimationBasedOnGestureRecognizerVelocity(velocityOfTouch, distance: 100)
             let indexOfViewToAnimate = indexOfInteractiveViewBasedOnCumulativeProgress(cumulativeProgress)
             let viewToAnimate = viewForIndex(indexOfViewToAnimate)
@@ -129,8 +129,8 @@ class ViewController: UIViewController {
                //pulling upwards
                //cancel with animation
                 
-                animateView(viewToAnimate, toState: .Initial, basedOnInitialVelocity: velocityOfSpring)
-                animateNextViewIntoPositionBasedOnInteractiveViewState(.Initial)
+                animateView(viewToAnimate, toState: .initial, basedOnInitialVelocity: velocityOfSpring)
+                animateNextViewIntoPositionBasedOnInteractiveViewState(.initial)
                 
                 cumulativeProgress -= 1
                 cumulativeProgress = ceil(cumulativeProgress)
@@ -140,8 +140,8 @@ class ViewController: UIViewController {
                 
                 
                 //finish with animation
-                animateView(viewToAnimate, toState: .Finished, basedOnInitialVelocity: velocityOfSpring)
-                animateNextViewIntoPositionBasedOnInteractiveViewState(.Finished)
+                animateView(viewToAnimate, toState: .finished, basedOnInitialVelocity: velocityOfSpring)
+                animateNextViewIntoPositionBasedOnInteractiveViewState(.finished)
                 
 
                 cumulativeProgress += 1
@@ -149,7 +149,7 @@ class ViewController: UIViewController {
             }
             
             
-        case .Changed:
+        case .changed:
             let travelledDistance = pointOfLastCalculatedProgress.distanceToPoint(locationOfTouch)
             let progressOfInteraction = progressForTravelledDistance(travelledDistance)
             
@@ -187,7 +187,7 @@ class ViewController: UIViewController {
      
      - returns: Progress corresponding to to travelled distance. Between -1 and 1
      */
-    private func progressForTravelledDistance(distance : Float) -> Float {
+    fileprivate func progressForTravelledDistance(_ distance : Float) -> Float {
         let maximum : Float = 200.0
         
         let relativeProgress = distance / maximum
@@ -205,7 +205,7 @@ class ViewController: UIViewController {
      - parameter animatedView: The view to update. It will perform a 'fall' movement based on the progress.
      - parameter progress:     Progress of the gesture. Between 0 and 1.
      */
-    private func updateInteractiveView(animatedView: UIView, basedOnPercentage progress: Float) {
+    fileprivate func updateInteractiveView(_ animatedView: UIView, basedOnPercentage progress: Float) {
 
         guard progress >= 0 && progress <= 1 else {
             print("PROGRESS MUST BE BETWEEN 0 AND 1")
@@ -232,12 +232,12 @@ class ViewController: UIViewController {
      - parameter state:    The state to which the view shall transition to. -> StateOfView
      - parameter velocity: Initial velocity of the spring gesture. It has to be calculated based on the gesture velocity at the point where the user lets go.
      */
-    private func animateView(view: UIView, toState state: StateOfView, basedOnInitialVelocity velocity: CGFloat) {
+    fileprivate func animateView(_ view: UIView, toState state: StateOfView, basedOnInitialVelocity velocity: CGFloat) {
 
-        UIView.animateWithDuration(0.6, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: velocity, options: [.BeginFromCurrentState, .CurveLinear], animations: { () -> Void in
+        UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: velocity, options: [.beginFromCurrentState, .curveLinear], animations: { () -> Void in
             
             
-            self.updateInteractiveView(view, basedOnPercentage: (state == .Initial) ? 0 : 1)
+            self.updateInteractiveView(view, basedOnPercentage: (state == .initial) ? 0 : 1)
             
             }) { (_) -> Void in
                 
@@ -249,7 +249,7 @@ class ViewController: UIViewController {
      
      - parameter state: State in which the currently interactive view is heading to. Eg. if it is finishing, the next view will snap into place but if it cancels, the next view has to snap back to its original position.
      */
-    private func animateNextViewIntoPositionBasedOnInteractiveViewState(state: StateOfView) {
+    fileprivate func animateNextViewIntoPositionBasedOnInteractiveViewState(_ state: StateOfView) {
         let indexOfNextView = indexOfInteractiveViewBasedOnCumulativeProgress(cumulativeProgress) + 1
         if indexOfNextView == interactiveViews.count {
             return
@@ -257,14 +257,14 @@ class ViewController: UIViewController {
         let viewToAnimate = viewForIndex(indexOfNextView)
         
         let newFrameForView : CGRect
-        if state == .Finished {
+        if state == .finished {
             newFrameForView = frameForViewAtIndex(0)
         }
         else {
             newFrameForView = frameForViewAtIndex(indexOfNextView)
         }
         
-        UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1, options: .BeginFromCurrentState, animations: { () -> Void in
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1, options: .beginFromCurrentState, animations: { () -> Void in
             
             viewToAnimate.frame = newFrameForView
             
@@ -282,7 +282,7 @@ class ViewController: UIViewController {
      
      - returns: The view from interactiveViews array based on a given index. First view, if index < 0 and last view, if index > interactiveViews.count-1.
      */
-    private func viewForIndex(index: Int) -> UIView {
+    fileprivate func viewForIndex(_ index: Int) -> UIView {
         if index < 0 {
             return interactiveViews.first!
         }
@@ -299,7 +299,7 @@ class ViewController: UIViewController {
      
      - returns: Index for the interactive view.
      */
-    private func indexOfInteractiveViewBasedOnCumulativeProgress(cumulativeProgress: Float) -> Int {
+    fileprivate func indexOfInteractiveViewBasedOnCumulativeProgress(_ cumulativeProgress: Float) -> Int {
         var index = Int(floor(cumulativeProgress))
 //        print("index '\(index)' based on progress \(cumulativeProgress)")
         if index < 0 {
@@ -317,7 +317,7 @@ class ViewController: UIViewController {
      
      - returns: A progress value between 0 and 1 for the individual view at given index.
      */
-    private func progressForViewWithIndex(index: Int, fromcumulativeProgress cumulativeProgress: Float) -> Float {
+    fileprivate func progressForViewWithIndex(_ index: Int, fromcumulativeProgress cumulativeProgress: Float) -> Float {
         let progress = cumulativeProgress - Float(index)
 //        print("progress for view is \(progress), based on index\(index) and cumulativeProgress \(cumulativeProgress)")
         return progress
@@ -332,14 +332,14 @@ class ViewController: UIViewController {
      
      - returns: Velocity of UIView spring animation to match the users gesture velocity.
      */
-    private func initialVelocityOfSpringAnimationBasedOnGestureRecognizerVelocity(velocityOfGR: CGFloat, distance: CGFloat) -> CGFloat {
+    fileprivate func initialVelocityOfSpringAnimationBasedOnGestureRecognizerVelocity(_ velocityOfGR: CGFloat, distance: CGFloat) -> CGFloat {
         
         return fabs(velocityOfGR / distance)
     }
     
-    private func shouldFinishGestureBasedOnProgress(progress: Float, directionOfGesture: DirectionOfPan) -> Bool {
+    fileprivate func shouldFinishGestureBasedOnProgress(_ progress: Float, directionOfGesture: DirectionOfPan) -> Bool {
         
-        if directionOfGesture == .Upwards {
+        if directionOfGesture == .upwards {
             return progress < 0.7
         }
         else {
@@ -357,7 +357,7 @@ extension CGPoint {
      
      - returns: Distance to this point in Y direction.
      */
-    func distanceToPoint(point: CGPoint) -> Float{
+    func distanceToPoint(_ point: CGPoint) -> Float{
 //        let dxAbs = (self.x - point.x)
         let dy = (point.y - self.y)
         
