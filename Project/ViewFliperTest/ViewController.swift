@@ -106,7 +106,7 @@ class ViewController: UIViewController {
      
      - parameter gestureRecognizer: A UIPanGestureRecognizer.
      */
-    func gestureRecognizerDidFire(_ gestureRecognizer: UIPanGestureRecognizer) {
+    @objc func gestureRecognizerDidFire(_ gestureRecognizer: UIPanGestureRecognizer) {
         let locationOfTouch = gestureRecognizer.location(in: gestureRecognizer.view!)
         let direction : DirectionOfPan = gestureRecognizer.velocity(in: gestureRecognizer.view!).y < 0 ? .upwards : .downwards
         
@@ -216,8 +216,8 @@ class ViewController: UIViewController {
 
 //        animatedView.layer.zPosition = CGFloat(colors.count)//view.frame.size.height / 1.7
         var perspective = CATransform3DIdentity
-        perspective.m34 = -1/300
-        let rotation = CATransform3DRotate(perspective, CGFloat(Float(-M_PI) * progress), 1, 0, 0)
+        perspective.m34 = -1/900
+        let rotation = CATransform3DRotate(perspective, CGFloat(-Float.pi * progress), 1, 0, 0)
 
         animatedView.layer.transform = rotation
         animatedView.alpha = CGFloat(1 - progress)
@@ -334,7 +334,7 @@ class ViewController: UIViewController {
      */
     fileprivate func initialVelocityOfSpringAnimationBasedOnGestureRecognizerVelocity(_ velocityOfGR: CGFloat, distance: CGFloat) -> CGFloat {
         
-        return fabs(velocityOfGR / distance)
+        return abs(velocityOfGR / distance)
     }
     
     fileprivate func shouldFinishGestureBasedOnProgress(_ progress: Float, directionOfGesture: DirectionOfPan) -> Bool {
